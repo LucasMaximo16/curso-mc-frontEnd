@@ -1,0 +1,58 @@
+import { Component } from '@angular/core';
+import { NavController, IonicPage, MenuController } from 'ionic-angular';
+import { CredenciaisDTO } from './../../models/credenciais.dto';
+import { AuthService } from './../../services/auth.service';
+
+@IonicPage()
+@Component({
+  selector: 'page-home',
+  templateUrl: 'home.html'
+})
+export class HomePage {
+
+  creds: CredenciaisDTO = {
+    email:"prqasystem@gmail.com",
+    senha: "123"
+  }
+
+  constructor(
+    public navCtrl: NavController, 
+    public menu: MenuController,
+    public auth: AuthService) {
+
+  }
+  
+  ionViewWillEnter() {
+    this.menu.swipeEnable(false);
+  }
+
+  ionViewDidLeave() {
+    this.menu.swipeEnable(true);
+  }
+  
+  ionViewDidEnter(){
+    if (this.creds.email != null) {
+      console.log(this.creds.email);
+      this.auth.refreshToken()
+      .subscribe(response => {
+        this.auth.successfulLogin(response.headers.get('Authorization'));
+        this.navCtrl.setRoot('CategoriasPage');
+      },
+      error => {});
+    }    
+  }
+  
+  login() {
+    this.auth.authenticate(this.creds)
+    .subscribe(response => {
+      this.auth.successfulLogin(response.headers.get('Authorization'));
+      this.navCtrl.setRoot('CategoriasPage');
+    },
+    error => {});    
+  }
+
+  signup() {
+    console.log('passou')
+    this.navCtrl.push('SignupPage');
+  }
+}
